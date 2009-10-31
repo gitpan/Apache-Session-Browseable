@@ -1,0 +1,10 @@
+Changes
+lib/Apache/Session/Browseable.pod
+lib/Apache/Session/Browseable/MySQL.pm
+lib/Apache/Session/Browseable/Store/DBI.pm
+lib/Apache/Session/Browseable/Store/MySQL.pm
+Makefile.PL
+MANIFEST
+META.yml			Module meta-data (added by MakeMaker)
+README
+t/Apache-Session-Browseable-Store-MySQL.t
