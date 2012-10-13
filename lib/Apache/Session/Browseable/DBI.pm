@@ -5,7 +5,7 @@ use strict;
 use DBI;
 use Apache::Session;
 
-our $VERSION = '0.2';
+our $VERSION = '0.8';
 our @ISA     = qw(Apache::Session);
 
 sub searchOn {
@@ -22,8 +22,9 @@ sub searchOn {
             "SELECT id,a_session from $table_name where $selectField='$value'");
         $sth->execute;
         while ( my @row = $sth->fetchrow_array ) {
-            my $tmp = &Apache::Session::Serialize::Storable::unserialize(
-                { serialized => $row[1] } );
+            no strict 'refs';
+            my $sub = "${class}::unserialize";
+            my $tmp = &$sub( { serialized => $row[1] } );
             if (@fields) {
                 $res{ $row[0] }->{$_} = $tmp->{$_} foreach (@fields);
             }
@@ -64,8 +65,9 @@ sub get_key_from_all_sessions {
     $sth->execute;
     my %res;
     while ( my @row = $sth->fetchrow_array ) {
-        my $tmp = &Apache::Session::Serialize::Storable::unserialize(
-            { serialized => $row[1] } );
+        no strict 'refs';
+        my $sub = "${class}::unserialize";
+        my $tmp = &$sub( { serialized => $row[1] } );
         if ( ref($data) eq 'CODE' ) {
             $tmp = &$data( $tmp, $row[0] );
             $res{ $row[0] } = $tmp if ( defined($tmp) );
@@ -85,12 +87,9 @@ sub _classDbh {
     my $class = shift;
     my $args  = shift;
 
-    my $datasource = $args->{DataSource}
-      || $Apache::Session::Store::MySQL::DataSource;
-    my $username = $args->{UserName}
-      || $Apache::Session::Store::MySQL::UserName;
-    my $password = $args->{Password}
-      || $Apache::Session::Store::MySQL::Password;
+    my $datasource = $args->{DataSource} or die "No datasource given !";
+    my $username   = $args->{UserName};
+    my $password   = $args->{Password};
     my $dbh =
       DBI->connect_cached( $datasource, $username, $password,
         { RaiseError => 1, AutoCommit => 1 } )

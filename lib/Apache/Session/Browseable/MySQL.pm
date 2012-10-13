@@ -9,8 +9,11 @@ use Apache::Session::Generate::MD5;
 use Apache::Session::Serialize::Storable;
 use Apache::Session::Browseable::DBI;
 
-our $VERSION = '0.4';
+our $VERSION = '0.8';
 our @ISA     = qw(Apache::Session::Browseable::DBI Apache::Session);
+
+*serialize   = \&Apache::Session::Serialize::Storable::serialize;
+*unserialize = \&Apache::Session::Serialize::Storable::unserialize;
 
 sub populate {
     my $self = shift;
@@ -19,8 +22,8 @@ sub populate {
     $self->{lock_manager} = new Apache::Session::Lock::Null $self;
     $self->{generate}     = \&Apache::Session::Generate::MD5::generate;
     $self->{validate}     = \&Apache::Session::Generate::MD5::validate;
-    $self->{serialize}    = \&Apache::Session::Serialize::Storable::serialize;
-    $self->{unserialize}  = \&Apache::Session::Serialize::Storable::unserialize;
+    $self->{serialize}    = \&serialize;
+    $self->{unserialize}  = \&unserialize;
 
     return $self;
 }
@@ -28,6 +31,7 @@ sub populate {
 1;
 
 __END__
+
 =head1 NAME
 
 Apache::Session::Browseable::MySQL - Add index and search methods to
