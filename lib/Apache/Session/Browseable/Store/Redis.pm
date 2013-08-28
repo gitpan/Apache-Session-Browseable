@@ -3,13 +3,22 @@ package Apache::Session::Browseable::Store::Redis;
 use strict;
 use Redis;
 
-our $VERSION = '0.1';
+our $VERSION = '1.0';
 
 sub new {
     my ( $class, $session ) = @_;
     my $self;
 
+    # Manage undef encoding
+    $session->{args}->{encoding} = undef
+      if (  $session->{args}->{encoding}
+        and $session->{args}->{encoding} eq "undef" );
+
     $self->{cache} = Redis->new( %{ $session->{args} } );
+
+    # Manage database
+    $self->{cache}->select( $session->{args}->{database} )
+      if defined $session->{args}->{database};
 
     bless $self, $class;
 }

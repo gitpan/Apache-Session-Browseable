@@ -7,8 +7,9 @@ use Apache::Session::Browseable::Store::Redis;
 use Apache::Session::Generate::MD5;
 use Apache::Session::Lock::Null;
 use Apache::Session::Serialize::Base64;
+use Apache::Session::Browseable::_common;
 
-our $VERSION = '0.9';
+our $VERSION = '1.0';
 our @ISA     = qw(Apache::Session);
 
 sub populate {
@@ -34,12 +35,20 @@ sub unserialize {
 sub searchOn {
     my ( $class, $args, $selectField, $value, @fields ) = @_;
 
+    # Manage undef encoding
+    $args->{encoding} = undef
+      if ( $args->{encoding} and $args->{encoding} eq "undef" );
+
     my %res = ();
     my $index =
       ref( $args->{Index} ) ? $args->{Index} : [ split /\s+/, $args->{Index} ];
     if ( grep { $_ eq $selectField } @$index ) {
         my $redisObj = Redis->new(%$args);
-        my @keys     = $redisObj->smembers("${selectField}_$value");
+
+        # Manage database
+        $redisObj->select( $args->{database} ) if defined $args->{database};
+
+        my @keys = $redisObj->smembers("${selectField}_$value");
         foreach my $k (@keys) {
             next unless ($k);
             my $tmp = $redisObj->get($k);
@@ -59,7 +68,9 @@ sub searchOn {
             sub {
                 my $entry = shift;
                 my $id    = shift;
-                return undef unless ( defined $entry->{$selectField} and $entry->{$selectField} eq $value );
+                return undef
+                  unless ( defined $entry->{$selectField}
+                    and $entry->{$selectField} eq $value );
                 if (@fields) {
                     $res{$id}->{$_} = $entry->{$_} foreach (@fields);
                 }
@@ -79,9 +90,17 @@ sub get_key_from_all_sessions {
     my $data  = shift;
     my %res;
 
+    # Manage undef encoding
+    $args->{encoding} = undef
+      if ( $args->{encoding} and $args->{encoding} eq "undef" );
+
     # TODO new Redis object
     my $redisObj = Redis->new(%$args);
-    my @keys     = $redisObj->keys('*');
+
+    # Manage database
+    $redisObj->select( $args->{database} ) if defined $args->{database};
+
+    my @keys = $redisObj->keys('*');
     foreach my $k (@keys) {
         next if ( !$k or $k =~ /_/ );
         my $v   = $redisObj->get($k);
@@ -172,10 +191,7 @@ Xavier Guimard, E<lt>x.guimard@free.frE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-=encoding utf8
-
-Copyright (C) 2009-2013 by Xavier Guimard
-              2013 by Clément Oudot
+Copyright (C) 2009 by Xavier Guimard
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.10.1 or,
