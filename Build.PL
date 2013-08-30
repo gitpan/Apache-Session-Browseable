@@ -5,8 +5,9 @@ use Module::Build;
 Module::Build->new(
     module_name   => 'Apache::Session::Browseable',
     license       => 'perl',
+    requires      => { 'Apache::Session' => 0, },
     recommends    => { 'DBI' => 0, 'Net::LDAP' => 0.38, },
     test_requires => { DBI => 0, 'DBD::SQLite' => 0, },
-    dist_version  => '1.0',
+    dist_version  => '1.0.1',
     autosplit     => [qw(lib/Apache/Session/Browseable/_common.pm)],
 )->create_build_script;
