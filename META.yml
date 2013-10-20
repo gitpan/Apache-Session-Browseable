@@ -2,13 +2,11 @@
 abstract: 'Add index and search methods to Apache::Session'
 author:
   - 'Xavier Guimard, E<lt>x.guimard@free.frE<gt>'
-build_requires:
-  DBD::SQLite: 0
-  DBI: 0
+build_requires: {}
 configure_requires:
-  Module::Build: 0.36
+  Module::Build: 0.40
 dynamic_config: 1
-generated_by: 'Module::Build version 0.4005, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.132661'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -44,10 +42,10 @@ provides:
     version: 1.0
   Apache::Session::Browseable::Store::DBI:
     file: lib/Apache/Session/Browseable/Store/DBI.pm
-    version: 0
+    version: 1
   Apache::Session::Browseable::Store::File:
     file: lib/Apache/Session/Browseable/Store/File.pm
-    version: 0
+    version: 0.1
   Apache::Session::Browseable::Store::Informix:
     file: lib/Apache/Session/Browseable/Store/Informix.pm
     version: 0.1
@@ -82,7 +80,4 @@ requires:
   Apache::Session: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 1.0
-x_test_requires:
-  DBD::SQLite: 0
-  DBI: 0
+version: v1.0.2
